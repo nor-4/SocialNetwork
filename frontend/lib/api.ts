@@ -352,6 +352,89 @@ export const api = {
     return response.json();
   },
 
+  // Get followers for a specific user
+  getFollowers: async (userId?: number): Promise<{ followers: any[] }> => {
+    const response = await fetch(API_BASE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${api.getToken()}`
+      },
+      body: JSON.stringify({
+        action: 'get_followers',
+        ...(userId && { userId })
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch followers');
+    }
+
+    return response.json();
+  },
+
+  // Get following for a specific user
+  getFollowing: async (userId?: number): Promise<{ following: any[] }> => {
+    const response = await fetch(API_BASE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${api.getToken()}`
+      },
+      body: JSON.stringify({
+        action: 'get_following',
+        ...(userId && { userId })
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch following');
+    }
+
+    return response.json();
+  },
+
+  // Update user profile
+  updateProfile: async (profileData: {
+    firstName: string;
+    lastName: string;
+    nickname: string;
+    about: string;
+    isPublic: boolean;
+  }): Promise<any> => {
+    const token = api.getToken();
+    if (!token) {
+      throw new Error('No authentication token found. Please login first.');
+    }
+
+    try {
+      const response = await fetch(API_BASE, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          action: 'update_profile',
+          ...profileData
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update profile: ${response.status} ${errorText}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to server. Please make sure the backend is running on http://localhost:8080');
+      }
+      throw error;
+    }
+  },
+
   // Update user avatar
   updateAvatar: async (imageFile: File): Promise<{ imageId: number; imageUrl: string }> => {
     const token = api.getToken();

@@ -167,6 +167,12 @@ func Router(w http.ResponseWriter, r *http.Request) {
 		request.acceptFollowRequest()
 	case "decline_follow_request":
 		request.declineFollowRequest()
+	case "update_profile":
+		request.updateProfile()
+	case "get_following":
+		request.getFollowing()
+	case "get_followers":
+		request.getFollowersForUser()
 	default:
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)

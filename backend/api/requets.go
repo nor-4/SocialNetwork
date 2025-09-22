@@ -663,6 +663,142 @@ func (ar *apiRequest) declineFollowRequest() {
 // 	ar.response = string(responseJSON)
 // }
 
+// updateProfile handles updating user profile information
+func (ar *apiRequest) updateProfile() {
+	var request struct {
+		FirstName string `json:"firstName"`
+		LastName  string `json:"lastName"`
+		Nickname  string `json:"nickname"`
+		About     string `json:"about"`
+		IsPublic  bool   `json:"isPublic"`
+	}
+
+	if err := json.Unmarshal([]byte(ar.requestBody), &request); err != nil {
+		log.Printf("Invalid request body: %v\n", err)
+		ar.responseCode = http.StatusBadRequest
+		ar.response = "Invalid request body"
+		return
+	}
+
+	// Update user profile in database
+	user := db.User{
+		Id:        ar.claims.Id,
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		Nickname:  request.Nickname,
+		About:     request.About,
+		Public:    request.IsPublic,
+	}
+
+	err := db.Connection.UpdateUser(user)
+	if err != nil {
+		log.Printf("Failed to update user profile: %v", err)
+		ar.responseCode = http.StatusInternalServerError
+		ar.response = "Failed to update profile"
+		return
+	}
+
+	response := map[string]string{
+		"message": "Profile updated successfully",
+	}
+
+	responseJSON, err := json.Marshal(response)
+	if err != nil {
+		log.Printf("Error marshalling profile update response: %v\n", err)
+		ar.responseCode = http.StatusInternalServerError
+		ar.response = "Internal server error"
+		return
+	}
+
+	ar.response = string(responseJSON)
+}
+
+// getFollowing handles fetching users that the current user is following
+func (ar *apiRequest) getFollowing() {
+	var request struct {
+		UserID int `json:"userId,omitempty"`
+	}
+
+	// Parse request body to get optional userId
+	if err := json.Unmarshal([]byte(ar.requestBody), &request); err != nil {
+		log.Printf("Invalid request body: %v\n", err)
+		// Use current user if parsing fails
+		request.UserID = ar.claims.Id
+	}
+
+	// If no userId specified, use current user
+	if request.UserID == 0 {
+		request.UserID = ar.claims.Id
+	}
+
+	following, err := db.Connection.GetFollowing(request.UserID)
+	if err != nil {
+		log.Printf("Failed to fetch following: %v", err)
+		ar.responseCode = http.StatusInternalServerError
+		errorResponse := map[string]string{"error": "Failed to fetch following"}
+		responseJSON, _ := json.Marshal(errorResponse)
+		ar.response = string(responseJSON)
+		return
+	}
+
+	response := map[string]interface{}{
+		"following": following,
+	}
+
+	responseJSON, err := json.Marshal(response)
+	if err != nil {
+		log.Printf("Error marshalling following response: %v\n", err)
+		ar.responseCode = http.StatusInternalServerError
+		ar.response = "Internal server error"
+		return
+	}
+
+	ar.response = string(responseJSON)
+}
+
+// getFollowersForUser handles fetching followers for a specific user
+func (ar *apiRequest) getFollowersForUser() {
+	var request struct {
+		UserID int `json:"userId,omitempty"`
+	}
+
+	// Parse request body to get optional userId
+	if err := json.Unmarshal([]byte(ar.requestBody), &request); err != nil {
+		log.Printf("Invalid request body: %v\n", err)
+		// Use current user if parsing fails
+		request.UserID = ar.claims.Id
+	}
+
+	// If no userId specified, use current user
+	if request.UserID == 0 {
+		request.UserID = ar.claims.Id
+	}
+
+	followers, err := db.Connection.GetFollowers(request.UserID)
+	if err != nil {
+		log.Printf("Failed to fetch followers: %v", err)
+		ar.responseCode = http.StatusInternalServerError
+		errorResponse := map[string]string{"error": "Failed to fetch followers"}
+		responseJSON, _ := json.Marshal(errorResponse)
+		ar.response = string(responseJSON)
+		return
+	}
+
+	response := map[string]interface{}{
+		"followers": followers,
+	}
+
+	responseJSON, err := json.Marshal(response)
+	if err != nil {
+		log.Printf("Error marshalling followers response: %v\n", err)
+		ar.responseCode = http.StatusInternalServerError
+		ar.response = "Internal server error"
+		return
+	}
+
+	ar.response = string(responseJSON)
+}
+
 // toggleFollow handles follow/unfollow functionality
 func (ar *apiRequest) toggleFollow() {
 	var request struct {

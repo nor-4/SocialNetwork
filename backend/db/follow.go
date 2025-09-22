@@ -320,3 +320,81 @@ func (db *Database) GetFollowStats(userID int) (followersCount, followingCount i
 
 	return followersCount, followingCount, nil
 }
+
+// GetFollowers gets the list of users who follow the given user
+func (db *Database) GetFollowers(userID int) ([]map[string]interface{}, error) {
+	query := `
+		SELECT u.id, u.nickname, u.first_name, u.last_name, u.profile_picture
+		FROM follows f
+		JOIN user u ON f.follower_id = u.id
+		WHERE f.followed_id = ? AND f.status = 'accepted'
+		ORDER BY u.first_name, u.last_name
+	`
+
+	rows, err := db.db.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query followers: %w", err)
+	}
+	defer rows.Close()
+
+	var followers []map[string]interface{}
+	for rows.Next() {
+		var id, profilePicture int
+		var nickname, firstName, lastName string
+		err := rows.Scan(&id, &nickname, &firstName, &lastName, &profilePicture)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan follower: %w", err)
+		}
+
+		follower := map[string]interface{}{
+			"id":             id,
+			"nickname":       nickname,
+			"firstName":      firstName,
+			"lastName":       lastName,
+			"fullName":       firstName + " " + lastName,
+			"profilePicture": profilePicture,
+		}
+		followers = append(followers, follower)
+	}
+
+	return followers, nil
+}
+
+// GetFollowing gets the list of users that the given user is following
+func (db *Database) GetFollowing(userID int) ([]map[string]interface{}, error) {
+	query := `
+		SELECT u.id, u.nickname, u.first_name, u.last_name, u.profile_picture
+		FROM follows f
+		JOIN user u ON f.followed_id = u.id
+		WHERE f.follower_id = ? AND f.status = 'accepted'
+		ORDER BY u.first_name, u.last_name
+	`
+
+	rows, err := db.db.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query following: %w", err)
+	}
+	defer rows.Close()
+
+	var following []map[string]interface{}
+	for rows.Next() {
+		var id, profilePicture int
+		var nickname, firstName, lastName string
+		err := rows.Scan(&id, &nickname, &firstName, &lastName, &profilePicture)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan following: %w", err)
+		}
+
+		follow := map[string]interface{}{
+			"id":             id,
+			"nickname":       nickname,
+			"firstName":      firstName,
+			"lastName":       lastName,
+			"fullName":       firstName + " " + lastName,
+			"profilePicture": profilePicture,
+		}
+		following = append(following, follow)
+	}
+
+	return following, nil
+}
