@@ -1,0 +1,9 @@
+DROP TRIGGER IF EXISTS update_conversation_timestamp_on_new_message;
+DROP INDEX IF EXISTS idx_message_conversation_id;
+DROP INDEX IF EXISTS idx_message_sender_id;
+DROP INDEX IF EXISTS idx_message_sent_at;
+DROP INDEX IF EXISTS idx_conversation_participant_user;
+DROP INDEX IF EXISTS idx_conversation_participant_conversation;
+DROP TABLE IF EXISTS message;
+DROP TABLE IF EXISTS conversation_participant;
+DROP TABLE IF EXISTS conversation;

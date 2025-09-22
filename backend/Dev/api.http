@@ -1,0 +1,26 @@
+### LOGIN api
+POST http://localhost:8080/api
+Authorization: eyJjbGFpbXMiOiJ7XCJ1c2VyX2lkXCI6MSxcInVzZXJuYW1lXCI6XCJhZG1pblwifSIsInNpZ25hdHVyZSI6IjVjYTg3YWRjZjQ4MmM3OTg4NDUxYWE1NzBhOGJkOTBlMmJmNzBlZjg5NzgxNjY1Y2UzMWU5NjA2MmU5NzAyNDY3Njg4ZmI2YzA0ODZjOGYyYjI1OTNjMDRkMWNmODYxNzY1OTcyNmRlNzhmMzAxZWYxMTFmZmI5ZmY2ZTMwYzBlIn0=
+
+{
+    "action": "login",
+    "username": "ahmed",
+    "password": "123"
+}
+
+### sign up api
+POST http://localhost:8080/api
+Authorization: eyJjbGFpbXMiOiJ7XCJ1c2VyX2lkXCI6MSxcInVzZXJuYW1lXCI6XCJhZG1pblwifSIsInNpZ25hdHVyZSI6IjVjYTg3YWRjZjQ4MmM3OTg4NDUxYWE1NzBhOGJkOTBlMmJmNzBlZjg5NzgxNjY1Y2UzMWU5NjA2MmU5NzAyNDY3Njg4ZmI2YzA0ODZjOGYyYjI1OTNjMDRkMWNmODYxNzY1OTcyNmRlNzhmMzAxZWYxMTFmZmI5ZmY2ZTMwYzBlIn0=
+
+{
+    "action": "signup",
+    "username": "ahmed",
+    "password": "123"
+}
+
+### Web Socket
+GET http://localhost:8080/api
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13

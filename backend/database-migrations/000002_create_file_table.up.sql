@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS file
+(
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    data     BLOB NOT NULL,
+    filename TEXT NOT NULL,
+    mimetype TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

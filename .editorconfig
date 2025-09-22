@@ -1,0 +1,26 @@
+# Top-most EditorConfig file
+root = true
+
+# Unix-style newlines
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Go files
+[*.go]
+indent_style = space
+indent_size = 4
+charset = utf-8
+
+# JavaScript & Web files
+[*.{js,ts,jsx,tsx,css,scss,sass,html}]
+indent_style = space
+indent_size = 2
+charset = utf-8
+
+# JavaScript & Web files
+[*.sql]
+indent_style = space
+indent_size = 4
+charset = utf-8

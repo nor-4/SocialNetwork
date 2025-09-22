@@ -1,0 +1,1 @@
+DELETE FROM user WHERE email IN ('user1@test.dev', 'user2@test.dev', 'user3@test.dev', 'user4@test.dev', 'user5@test.dev');

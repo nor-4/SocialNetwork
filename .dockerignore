@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Node / Frontend
+frontend/node_modules  # <--- Prevents host node_modules from being sent
+frontend/.next         # <--- Prevents host .next dir from being sent
+frontend/out           # <--- Prevents host out dir from being sent
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Go / Backend
+backend/vendor
+backend/*_test.go
+backend/server
+
+# OS generated files
+.DS_Store
+Thumbs.db

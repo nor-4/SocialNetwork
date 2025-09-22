@@ -1,0 +1,285 @@
+'use client' ;
+import react, {useActionState, useState} from 'react' ;
+
+// setting up post type, defining all that will be used within it
+
+type Post = {
+
+  id: number;
+  content: string;
+  likes: number ;
+  comments : string [];
+  username: string ;
+  profilePic: string;
+  createdAt: Date;
+
+} ; 
+
+export default function HomePage() {
+
+// fake data rn, shall be obtained from DB later
+const currentUser = {
+  username : 'Jennyyyy' ,
+  profilePic: 'https://i.pravatar.cc/150?u=jane' ,
+
+} ;
+
+// setting the state for all posts posted / displayed, initially its nothing duhuh
+const [posts, setPosts] = useState<Post[]>([]);
+
+//this basically sets the state for the post in the create-post-container,
+//temporarily while user is typing, onced it is fired it will be moved/stored to Post array. 
+const [newPost, setNewPost] = useState(' ');
+
+// setting the state for comments, each comment will be mapped to a post's ID
+const [comment, setComment] = useState<{[id : number] : string}>({}) ;
+
+// a function that checks/ensures post is not empty, gather's its info usu=ing variable type post.
+// then it adds this new post to the posts array and clears oue the temp newpost
+const handlePost = () => {
+ 
+ if (!newPost.trim()) return ;
+
+ const post : Post = {
+
+   id : Date.now() ,
+   content : newPost ,
+   likes : 0 ,
+   comments : [] ,
+   username : currentUser.username , 
+   profilePic : currentUser.profilePic ,
+   createdAt : new Date() ,
+
+ } ;
+
+
+ setPosts([post, ... posts]) ;
+ setNewPost(' ') ;
+ 
+
+
+} ; 
+
+// update the like in a post / find the post using its unique id
+const handleLike = (id : number) => {
+
+setPosts(
+  posts.map((post) => 
+    // look for thge post with that id, everything remain unchanged except the likes +1.
+  // if the post is not with the id we wantm remains unchanged
+   post.id === id ? {... post, likes: post.likes + 1} : post
+  )
+) ;
+
+};
+
+
+
+const handleComment = (id : number , comment : string) => {
+
+if (!comment.trim()) return ;
+
+  posts.map((post) => 
+  
+  post.id === id ? {... post, comments : [... post.comments, comment]} : posts
+  
+  )
+
+  setComment({... comment, [id]: '' });
+
+
+
+} ;
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------
+
+'use client';
+import React, { useState } from 'react';
+
+// Define the Post type
+type Post = {
+  id: number;
+  content: string;
+  likes: number;
+  comments: string[];
+  username: string;
+  profilePic: string;
+  createdAt: Date;
+};
+
+export default function HomePage() {
+  // Simulate current logged-in user
+  const currentUser = {
+    username: 'JaneDoe',
+    profilePic: 'https://i.pravatar.cc/150?u=jane', // Random avatar URL
+  };
+
+  // State for all posts
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  // State for new post input box
+  const [newPost, setNewPost] = useState('');
+
+  // State to track comment inputs per post (keyed by post id)
+  const [commentInputs, setCommentInputs] = useState<{ [id: number]: string }>({});
+
+  // Function to create a new post
+  const handlePost = () => {
+    if (!newPost.trim()) return; // Prevent empty posts
+
+    const post: Post = {
+      id: Date.now(), // unique id using timestamp
+      content: newPost,
+      likes: 0,
+      comments: [],
+      username: currentUser.username,
+      profilePic: currentUser.profilePic,
+      createdAt: new Date(),
+    };
+
+    setPosts([post, ...posts]); // Add new post at top
+    setNewPost(''); // Clear input
+  };
+
+  // Function to handle liking a post
+  const handleLike = (id: number) => {
+    setPosts(
+      posts.map((post) =>
+        post.id === id ? { ...post, likes: post.likes + 1 } : post
+      )
+    );
+  };
+
+  // Function to add a comment to a post
+  const handleComment = (id: number, comment: string) => {
+    if (!comment.trim()) return; // Ignore empty comments
+
+    setPosts(
+      posts.map((post) =>
+        post.id === id
+          ? { ...post, comments: [...post.comments, comment] }
+          : post
+      )
+    );
+
+    // Clear comment input box for this post
+    setCommentInputs({ ...commentInputs, [id]: '' });
+  };
+
+  // Helper to convert Date to "time ago" string
+  function timeAgo(date: Date) {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return 'just now';
+    const mins = Math.floor(seconds / 60);
+    if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
+  }
+
+  return (
+    <div className="min-h-screen bg-white text-gray-800 p-10 max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">SocialNet</h1>
+
+      {/* Create Post */}
+      <div className="mb-8">
+        <textarea
+          className="w-full p-3 border rounded mb-2 resize-none"
+          placeholder="What's on your mind?"
+          value={newPost}
+          onChange={(e) => setNewPost(e.target.value)}
+          rows={4}
+        />
+        <button
+          onClick={handlePost}
+          className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+        >
+          Post
+        </button>
+      </div>
+
+      {/* Posts List */}
+      {posts.length === 0 && (
+        <p className="text-gray-600 text-center">No posts yet. Be the first!</p>
+      )}
+
+      {posts.map((post) => (
+        <div key={post.id} className="border-b pb-6 mb-6">
+          {/* User info */}
+          <div className="flex items-center gap-3 mb-3">
+            <img
+              src={post.profilePic}
+              alt={post.username}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+            <div>
+              <p className="font-semibold">{post.username}</p>
+              <p className="text-xs text-gray-500">{timeAgo(new Date(post.createdAt))}</p>
+            </div>
+          </div>
+
+          {/* Post content */}
+          <p className="mb-3 whitespace-pre-wrap">{post.content}</p>
+
+          {/* Like button and count */}
+          <div className="flex items-center gap-4 mb-4">
+            <button
+              onClick={() => handleLike(post.id)}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              ❤️ Like
+            </button>
+            <span className="text-sm text-gray-600">{post.likes} like{post.likes !== 1 ? 's' : ''}</span>
+          </div>
+
+          {/* Comments Section */}
+          <div className="ml-4">
+            <h4 className="font-semibold mb-2">Comments</h4>
+            {post.comments.length === 0 ? (
+              <p className="text-sm text-gray-500 mb-3">No comments yet.</p>
+            ) : (
+              <ul className="list-disc list-inside mb-3 text-sm text-gray-700">
+                {post.comments.map((comment, index) => (
+                  <li key={index}>{comment}</li>
+                ))}
+              </ul>
+            )}
+
+            {/* Add comment input */}
+            <input
+              type="text"
+              placeholder="Add a comment..."
+              className="w-full p-2 border rounded text-sm"
+              value={commentInputs[post.id] || ''}
+              onChange={(e) =>
+                setCommentInputs({ ...commentInputs, [post.id]: e.target.value })
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleComment(post.id, commentInputs[post.id] || '');
+                }
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+

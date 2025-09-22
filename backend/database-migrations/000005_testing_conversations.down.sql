@@ -1,0 +1,1 @@
+DELETE FROM conversation WHERE id IN (1,2,3,4); -- CASCADE should take care of the rest
