@@ -20,46 +20,43 @@ var upgrader = websocket.Upgrader{
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("WebSocket upgrade error:", err)
+		log.Printf("WebSocket upgrade error: %v", err)
 		return
 	}
+	defer ws.Close()
 
 	var msg Message
 	err = ws.ReadJSON(&msg)
 	if err != nil || msg.Type != "connect" {
-		ws.Close()
+		log.Printf("Invalid connect message: %v", err)
 		return
 	}
 
 	client := &Client{conn: ws, id: msg.From}
 	hub.addClient(client)
 
-	fmt.Printf("Client connected: %d\n", client.id)
+	log.Printf("Client connected: %d", client.id)
 
-	hub.sendUserList(client)
-	//hub.sendGroupList(client.username)
+	// Send conversation list immediately after connection
+	hub.sendConversationList(client)
 
 	go func() {
 		defer func() {
 			hub.removeClient(client)
-			// hub.sendUserList()
-
-			fmt.Printf("Client disconnected: %d\n", client.id)
+			log.Printf("Client disconnected: %d", client.id)
 		}()
 
 		for {
-
 			var msg Message
 			err := ws.ReadJSON(&msg)
-
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					fmt.Printf("Error reading message: %v\n", err)
+					log.Printf("Unexpected close error: %v", err)
 				}
 				break
 			}
 
-			fmt.Printf("Received message from %s: %s\n", client.id, msg)
+			log.Printf("Received message from %d: %+v", client.id, msg)
 			hub.processs(msg)
 		}
 	}()

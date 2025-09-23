@@ -117,3 +117,8 @@ func (d *Database) Open(dbPath string) error {
 func (d *Database) Close() error {
 	return d.db.Close()
 }
+
+// Query executes a query that returns rows
+func (d *Database) Query(query string, args ...interface{}) (*sql.Rows, error) {
+	return d.db.Query(query, args...)
+}
